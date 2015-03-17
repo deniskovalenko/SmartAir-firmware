@@ -4,12 +4,15 @@
 #define SSID "HTC Denis"  //WiFi SSID
 #define PASS "12345678"  //WiFi password
 
-SoftwareSerial esp(7, 6);
-DHT11 dht(4);
+#define DHT_PIN 4  //DHT11 sensor data pin
+#define ESP_RX_PIN 6  //to esp8266 tx pin
+#define ESP_TX_PIN 7  //to esp8266 rx pin
 
-char serialbuffer[100];
-String content = "";
-char character;
+SoftwareSerial esp(ESP_TX_PIN, ESP_RX_PIN);
+DHT11 dht(DHT_PIN);
+
+String command = "";
+String PostData = "";
 boolean _connected=false;
 
 void setup()
@@ -19,6 +22,8 @@ void setup()
   esp.begin(9600);
   esp.setTimeout(5000);
   delay(DHT11_RETRY_DELAY);
+
+  ////////// TODO: endless waiting for connect
   for(int i=0;i<5;i++)
   {
     if(connectWiFi())
@@ -30,7 +35,7 @@ void setup()
   if (!_connected){
     while(1);
   }
-  delay(1000);
+  //////////
 }
 
 void loop()
@@ -42,25 +47,25 @@ void loop()
 void WebRequest ()
 {
   esp.flush();
-  esp.println("AT+CIPSTART=\"TCP\",\"54.93.100.129\", 80");
+  esp.println(F("AT+CIPSTART=\"TCP\",\"54.93.100.129\", 80"));
   if (esp.find("DNS Fail"))
   {
-    Serial.println("DNS Fail");
+    Serial.println(F("DNS Fail"));
     return;
   }
   float temp = 0;
   float hum = 0;
   GetTempHum(temp, hum);
-  String PostData="device_name=Arduino&temperature=";
+  PostData=F("device_name=Arduino&temperature=");
   PostData+=temp;
-  PostData+="&co2=";
+  PostData+=F("&co2=");
   PostData+=400+600*hum/100;
-  String command = "POST http://54.93.100.129/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
-  command+=PostData.length();//"Connection: close\r\n";
-  command+="\r\n\r\n";
+  command = F("POST http://54.93.100.129/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ");
+  command+=PostData.length();
+  command+=F("\r\n\r\n");
   command+=PostData;
   Serial.println(command);
-  esp.print("AT+CIPSEND=");
+  esp.print(F("AT+CIPSEND="));
   esp.println(command.length());
   if(esp.find(">"))
   {
@@ -68,8 +73,8 @@ void WebRequest ()
   }
   else
   {
-    esp.println("AT+CIPCLOSE");
-    Serial.println("connect timeout");
+    esp.println(F("AT+CIPCLOSE"));
+    Serial.println(F("connect timeout"));
     delay(1000);
     return;
   }
@@ -78,25 +83,25 @@ void WebRequest ()
 
 boolean connectWiFi()
 {
-  esp.println("AT+CWMODE=1");
-  String cmd="AT+CWJAP=\"";
+  esp.println(F("AT+CWMODE=1"));
+  String cmd=F("AT+CWJAP=\"");
   cmd+=SSID;
-  cmd+="\",\"";
+  cmd+=F("\",\"");
   cmd+=PASS;
   cmd+="\"";
-  Serial.print("Connecting to ");
+  Serial.print(F("Connecting to "));
   Serial.println(SSID);
   esp.println(cmd);
   delay(2000);
   if(esp.find("OK"))
   {
-    Serial.println("OK, Connected to WiFi.");
+    Serial.println(F("OK, Connected to WiFi."));
     esp.flush();
     return true;
   }
   else
   {
-    Serial.println("error connect to the WiFi.");
+    Serial.println(F("error connect to the WiFi."));
     return false;
   }
 }
