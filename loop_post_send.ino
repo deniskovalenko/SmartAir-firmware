@@ -30,15 +30,11 @@ void setup()
   if (!_connected){
     while(1);
   }
-  delay(1000); //5000
-  //esp.println("AT+CIPMUX=0");
+  delay(1000);
 }
 
 void loop()
 {
-//  while (esp.available() > 0) {
-//    Serial.write(esp.read());
-//  }
   delay(15*1000);
   WebRequest();
 }
@@ -60,10 +56,9 @@ void WebRequest ()
   PostData+="&co2=";
   PostData+=400+600*hum/100;
   String command = "POST http://54.93.100.129/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
-  //command+=;
-  //command+="\r\n\r\n";
-  //command+=PostData;
-  //command+="\r\n\r\n";
+  command+=PostData.length();//"Connection: close\r\n";
+  command+="\r\n\r\n";
+  command+=PostData;
   Serial.println(command);
   esp.print("AT+CIPSEND=");
   esp.println(command.length());
@@ -79,9 +74,6 @@ void WebRequest ()
     return;
   }
   esp.print(command);
-  esp.print(PostData.length());
-  esp.print("/r/n/r/n");
-  esp.print(PostData);
 }
 
 boolean connectWiFi()
