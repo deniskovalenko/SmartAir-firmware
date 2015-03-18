@@ -1,8 +1,8 @@
 #include <DHT11.h>
 #include <SoftwareSerial.h>
 
-#define SSID "HTC Denis"  //WiFi SSID
-#define PASS "12345678"  //WiFi password
+#define SSID F("TP-Link")  //WiFi SSID
+#define PASS F("DFJFbsdfh534jsfbkDFK")  //WiFi password
 
 #define DHT_PIN 4  //DHT11 sensor data pin
 #define ESP_RX_PIN 6  //to esp8266 tx pin
@@ -11,8 +11,6 @@
 SoftwareSerial esp(ESP_TX_PIN, ESP_RX_PIN);
 DHT11 dht(DHT_PIN);
 
-String command = "";
-String PostData = "";
 boolean _connected=false;
 
 void setup()
@@ -22,7 +20,6 @@ void setup()
   esp.begin(9600);
   esp.setTimeout(5000);
   delay(DHT11_RETRY_DELAY);
-
   ////////// TODO: endless waiting for connect
   for(int i=0;i<5;i++)
   {
@@ -40,13 +37,13 @@ void setup()
 
 void loop()
 {
-  delay(15*1000);
   WebRequest();
+  delay(15*1000);
 }
 
 void WebRequest ()
 {
-  esp.flush();
+  //esp.flush();
   esp.println(F("AT+CIPSTART=\"TCP\",\"54.93.100.129\", 80"));
   if (esp.find("DNS Fail"))
   {
@@ -56,11 +53,11 @@ void WebRequest ()
   float temp = 0;
   float hum = 0;
   GetTempHum(temp, hum);
-  PostData=F("device_name=Arduino&temperature=");
+  String PostData=F("device_name=Arduino&temperature=");
   PostData+=temp;
   PostData+=F("&co2=");
   PostData+=400+600*hum/100;
-  command = F("POST http://54.93.100.129/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ");
+  String command = F("POST http://54.93.100.129/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ");
   command+=PostData.length();
   command+=F("\r\n\r\n");
   command+=PostData;
@@ -88,7 +85,7 @@ boolean connectWiFi()
   cmd+=SSID;
   cmd+=F("\",\"");
   cmd+=PASS;
-  cmd+="\"";
+  cmd+=F("\"");
   Serial.print(F("Connecting to "));
   Serial.println(SSID);
   esp.println(cmd);
@@ -114,5 +111,5 @@ float GetTempHum( float& temp, float& hum)
     hum=0;
     temp=-273;
   }
-  delay(DHT11_RETRY_DELAY);
+  //delay(DHT11_RETRY_DELAY);
 }
