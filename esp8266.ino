@@ -60,7 +60,7 @@ void WebRequest ()
   PostData+="&co2=";
   PostData+=400+600*hum/100;
   String command = "POST http://54.93.100.129/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
-  command+=String(PostData.length());//"Connection: close\r\n";
+  command+=PostData.length();//"Connection: close\r\n";
   command+="\r\n\r\n";
   command+=PostData;
   //command+="\r\n\r\n";
