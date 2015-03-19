@@ -53,7 +53,7 @@ void WebRequest ()
   float temp = 0;
   float hum = 0;
   GetTempHum(temp, hum);
-  String PostData=F("device_name=Arduino&temperature=");
+  String PostData=F("device_id=serialNumber123&temperature=");
   PostData+=temp;
   PostData+=F("&co2=");
   PostData+=400+600*hum/100;
