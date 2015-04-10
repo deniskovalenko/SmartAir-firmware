@@ -41,7 +41,7 @@ boolean _connected = false;
 #define         READ_SAMPLE_INTERVAL         (50)
 #define         READ_SAMPLE_TIMES            (5) 
                                                     
-#define         ZERO_POINT_VOLTAGE           (0.343)
+#define         ZERO_POINT_VOLTAGE           (0.343) //at least 0.4, maybe even more
 #define         REACTION_VOLTGAE             (0.041)
 
 float           CO2Curve[3]  =  {2.602, ZERO_POINT_VOLTAGE, (REACTION_VOLTGAE/(2.602-3))};   
@@ -116,12 +116,12 @@ void WebRequest (int t, int p)
     return;
   }
  
-  String PostData="device_id=Arduino&temperature=";
+  String PostData="deviceId=Arduino&temperature=";
   PostData+=t;
   PostData+="&co2=";
   PostData+=p;
   
-  String command = "POST http://54.93.100.129/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
+  String command = "POST http://54.93.100.129/user/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
   command+=PostData.length();
   command+="\r\n\r\n";
   command+=PostData;
