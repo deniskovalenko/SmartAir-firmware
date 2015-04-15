@@ -41,7 +41,7 @@ boolean _connected = false;
 #define         READ_SAMPLE_INTERVAL         (50)
 #define         READ_SAMPLE_TIMES            (5) 
                                                     
-#define         ZERO_POINT_VOLTAGE           (0.343) //at least 0.4, maybe even more
+#define         ZERO_POINT_VOLTAGE           (0.4) //at least 0.4, maybe even more
 #define         REACTION_VOLTGAE             (0.041)
 
 float           CO2Curve[3]  =  {2.602, ZERO_POINT_VOLTAGE, (REACTION_VOLTGAE/(2.602-3))};   
