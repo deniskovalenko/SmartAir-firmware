@@ -97,7 +97,7 @@ void loop()
   
   if (_i == 5)
   {
-    WebRequest(temp, mgPercentage);
+    WebRequest(temp, mgPercentage, hum);
     _i = -1;
   }
   
@@ -105,7 +105,7 @@ void loop()
   delay(10000);
 }
 
-void WebRequest (int t, int p)
+void WebRequest (int t, int p, int h)
 {
   esp.println("AT+CIPSTART=\"TCP\",\"54.93.100.129\",80");
   delay(1000);
@@ -118,6 +118,8 @@ void WebRequest (int t, int p)
  
   String PostData="deviceId=Arduino&temperature=";
   PostData+=t;
+  PostData+="&humidity=";
+  PostData+=h;
   PostData+="&co2=";
   PostData+=p;
   
