@@ -26,8 +26,8 @@ dht11 DHT;
 #define ESP_RX_PIN 6  
 #define ESP_TX_PIN 7  
 
-#define WiFi_SSID "TP-LINK_WR841N"  
-#define WiFi_PASS "289CS8HFZF"  
+#define WiFi_SSID "HTC Denis" 
+#define WiFi_PASS "12345678"  
 
 SoftwareSerial esp(ESP_TX_PIN, ESP_RX_PIN);
 
@@ -39,10 +39,10 @@ boolean _connected = false;
 #define         DC_GAIN                      (8.5)
 
 #define         READ_SAMPLE_INTERVAL         (50)
-#define         READ_SAMPLE_TIMES            (5) 
+#define         READ_SAMPLE_TIMES            (10) 
                                                     
 #define         ZERO_POINT_VOLTAGE           (0.4) //at least 0.4, maybe even more
-#define         REACTION_VOLTGAE             (0.041)
+#define         REACTION_VOLTGAE             (0.030)
 
 float           CO2Curve[3]  =  {2.602, ZERO_POINT_VOLTAGE, (REACTION_VOLTGAE/(2.602-3))};   
 //   MG   //
@@ -66,12 +66,14 @@ void setup()
   delay(1000);
   
   while(!_connected)
-    _connected = connectWiFi();
+    _connected = connectWiFi(); //maybe, revert to for 1 .. 5, and if not connected start storing data to memory
 }
-
+int co2Sum;
+int count;
 void loop()
 {
   int temp;
+  
   int hum;
   int mgPercentage;
   float mgVolts;
@@ -81,12 +83,28 @@ void loop()
   mgVolts = MGRead(MG_PIN);  
   mgPercentage = MGGetPercentage(mgVolts, CO2Curve);
   
+  co2Sum+=mgPercentage;
+  count++;
   
-  r = (int)(RED_a * (double)mgPercentage + RED_b);
-  g = (int)(GREEN_a * (double)mgPercentage + GREEN_b);
-      
+  if (mgPercentage < 700 ) {
+
+    r = 0; g = 255; } else
+
+    if (mgPercentage < 1100) {
+
+      r = 200; g = 50;} else {
+
+        r = 255; g = 0;
+
+      }
+  //r = (int)(RED_a * (double)mgPercentage + RED_b);
+
+  //g = (int)(GREEN_a * (double)mgPercentage + GREEN_b);
+     
   SetColor(r, g, 0);
   
+  Serial.print("Humidity : ");
+  Serial.print(hum);
   Serial.print("Temperature: ");
   Serial.print(temp);
   Serial.print(" C       Voltage: ");
@@ -95,14 +113,17 @@ void loop()
   Serial.print(mgPercentage);
   Serial.println(" ppm");
   
-  if (_i == 5)
+  if (_i == 19)
   {
-    WebRequest(temp, mgPercentage, hum);
+    int co2Avg = co2Sum/count;
+    WebRequest(temp, co2Avg, hum);
     _i = -1;
+    count=0;
+    co2Sum=0;
   }
   
   _i++;
-  delay(10000);
+  delay(3000);
 }
 
 void WebRequest (int t, int p, int h)
@@ -116,14 +137,14 @@ void WebRequest (int t, int p, int h)
     return;
   }
  
-  String PostData="deviceId=Arduino&temperature=";
+  String PostData="deviceId=VernadskyChallenge&temperature=";
   PostData+=t;
   PostData+="&humidity=";
   PostData+=h;
   PostData+="&co2=";
   PostData+=p;
   
-  String command = "POST http://54.93.100.129/user/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
+  String command = "POST http://54.93.100.129/api/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
   command+=PostData.length();
   command+="\r\n\r\n";
   command+=PostData;
@@ -230,4 +251,5 @@ int  MGGetPercentage(float volts, float *pcurve)
      
    return (result);
 }
+
 
