@@ -26,8 +26,8 @@ dht11 DHT;
 #define ESP_RX_PIN 6  
 #define ESP_TX_PIN 7  
 
-#define WiFi_SSID "HTC Denis" 
-#define WiFi_PASS "12345678"  
+#define WiFi_SSID "school" 
+#define WiFi_PASS "4T7CkjYD"  
 
 SoftwareSerial esp(ESP_TX_PIN, ESP_RX_PIN);
 
@@ -41,7 +41,7 @@ boolean _connected = false;
 #define         READ_SAMPLE_INTERVAL         (50)
 #define         READ_SAMPLE_TIMES            (10) 
                                                     
-#define         ZERO_POINT_VOLTAGE           (0.4) //at least 0.4, maybe even more
+#define         ZERO_POINT_VOLTAGE           (0.381) //at least 0.4, maybe even more
 #define         REACTION_VOLTGAE             (0.030)
 
 float           CO2Curve[3]  =  {2.602, ZERO_POINT_VOLTAGE, (REACTION_VOLTGAE/(2.602-3))};   
@@ -68,7 +68,7 @@ void setup()
   while(!_connected)
     _connected = connectWiFi(); //maybe, revert to for 1 .. 5, and if not connected start storing data to memory
 }
-int co2Sum;
+long co2Sum;
 int count;
 void loop()
 {
@@ -128,7 +128,7 @@ void loop()
 
 void WebRequest (int t, int p, int h)
 {
-  esp.println("AT+CIPSTART=\"TCP\",\"54.93.100.129\",80");
+  esp.println("AT+CIPSTART=\"TCP\",\"smart-air.herokuapp.com\",80");
   delay(1000);
   
   if (esp.find("DNS Fail"))
@@ -137,14 +137,14 @@ void WebRequest (int t, int p, int h)
     return;
   }
  
-  String PostData="deviceId=VernadskyChallenge&temperature=";
+  String PostData="deviceId=40665d90-268d-4857-90fa-21b4016a52d3&temperature=";
   PostData+=t;
   PostData+="&humidity=";
   PostData+=h;
   PostData+="&co2=";
   PostData+=p;
   
-  String command = "POST http://54.93.100.129/api/addData HTTP/1.0\r\nHost: 54.93.100.129\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
+  String command = "POST http://smart-air.herokuapp.com/api/addData HTTP/1.0\r\nHost: smart-air.herokuapp.com\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
   command+=PostData.length();
   command+="\r\n\r\n";
   command+=PostData;
@@ -251,5 +251,3 @@ int  MGGetPercentage(float volts, float *pcurve)
      
    return (result);
 }
-
-
