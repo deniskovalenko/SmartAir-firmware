@@ -26,8 +26,8 @@ dht11 DHT;
 #define ESP_RX_PIN 6  
 #define ESP_TX_PIN 7  
 
-#define WiFi_SSID "school" 
-#define WiFi_PASS "4T7CkjYD"  
+#define WiFi_SSID "TP-LINK-HOME" 
+#define WiFi_PASS "q1w2e3r4"  
 
 SoftwareSerial esp(ESP_TX_PIN, ESP_RX_PIN);
 
@@ -128,7 +128,7 @@ void loop()
 
 void WebRequest (int t, int p, int h)
 {
-  esp.println("AT+CIPSTART=\"TCP\",\"smart-air.herokuapp.com\",80");
+  esp.println("AT+CIPSTART=\"TCP\",\"smartair.tech\",80");
   delay(1000);
   
   if (esp.find("DNS Fail"))
@@ -144,7 +144,7 @@ void WebRequest (int t, int p, int h)
   PostData+="&co2=";
   PostData+=p;
   
-  String command = "POST http://smart-air.herokuapp.com/api/addData HTTP/1.0\r\nHost: smart-air.herokuapp.com\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
+  String command = "POST http://smartair.tech/api/addData HTTP/1.0\r\nHost: smart-air.herokuapp.com\r\nUser-Agent: Arduino/1.0\r\nConnection: close\r\nContent-Type: application/x-www-form-urlencoded;\r\nContent-Length: ";
   command+=PostData.length();
   command+="\r\n\r\n";
   command+=PostData;
